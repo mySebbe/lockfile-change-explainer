@@ -1,0 +1,7 @@
+{
+  "packages": {
+    "node_modules/left-pad": {"version": "2.0.0"},
+    "node_modules/lodash": {"version": "4.17.20"},
+    "node_modules/new-only": {"version": "0.2.0"}
+  }
+}

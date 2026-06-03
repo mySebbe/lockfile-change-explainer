@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "lockfile-change-explainer"
+version = "0.1.0"
+description = "Explain dependency changes in lockfiles with practical risk hints."
+readme = "README.md"
+requires-python = ">=3.11"
+license = {text = "MIT"}
+authors = [{name = "OSS maintainers"}]
+dependencies = []
+
+[project.scripts]
+lockfile-change-explainer = "lockfile_change_explainer:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["lockfile_change_explainer*"]
+
+[project.urls]
+Homepage = "https://github.com/mySebbe/lockfile-change-explainer"
+Repository = "https://github.com/mySebbe/lockfile-change-explainer"
+Issues = "https://github.com/mySebbe/lockfile-change-explainer/issues"
+Changelog = "https://github.com/mySebbe/lockfile-change-explainer/blob/main/CHANGELOG.md"
+
+[tool.setuptools.package-data]
+"lockfile_change_explainer" = ["py.typed"]
