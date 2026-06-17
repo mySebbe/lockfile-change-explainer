@@ -195,6 +195,8 @@ def _version_risk(old_version: str, new_version: str) -> tuple[str, str]:
     old_parts = _semver_parts(old_version)
     new_parts = _semver_parts(new_version)
     if old_parts and new_parts:
+        if new_parts < old_parts:
+            return "high", "version was downgraded; verify compatibility, security fixes, and resolver constraints"
         if new_parts[0] != old_parts[0]:
             return "high", "major version changed; review breaking changes and transitive impact"
         if len(new_parts) > 1 and len(old_parts) > 1 and new_parts[1] != old_parts[1]:
