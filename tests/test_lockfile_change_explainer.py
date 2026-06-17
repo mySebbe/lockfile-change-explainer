@@ -61,6 +61,12 @@ class LockfileChangeExplainerTests(unittest.TestCase):
         self.assertIn("a 1.0.0 -> 1.0.1", report)
         self.assertIn("low", report)
 
+    def test_downgrade_is_high_risk_with_specific_hint(self):
+        result = compare_lockfiles("a==1.4.0\n", "a==1.3.9\n", lockfile_format="requirements")
+
+        self.assertEqual("high", result.changed[0].risk)
+        self.assertIn("downgraded", result.changed[0].hint)
+
     def test_cli_emits_json_summary(self):
         with tempfile.TemporaryDirectory() as tmp:
             old_path = Path(tmp) / "old.txt"
