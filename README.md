@@ -8,6 +8,11 @@ Supported v0.1 inputs:
 - requirements-style files such as `requirements.txt`
 - simple pylock/TOML files with package entries containing `name` and `version`
 
+## 0.1.1 Highlights
+
+- Dependency downgrades are now called out as high-risk changes.
+- Downgrade hints now mention compatibility, security fixes, and resolver constraints.
+
 ## Usage
 
 ```bash
