@@ -32,6 +32,9 @@ class LockfileComparison:
     lockfile_format: str
 
 
+RISK_ORDER = {"low": 1, "medium": 2, "high": 3}
+
+
 def compare_lockfiles(old_text: str, new_text: str, lockfile_format: str = "auto") -> LockfileComparison:
     """Return added, removed, and changed dependency entries."""
     resolved_format = _resolve_format(old_text, new_text, lockfile_format)
@@ -58,6 +61,22 @@ def compare_lockfiles(old_text: str, new_text: str, lockfile_format: str = "auto
     return LockfileComparison(added, removed, changed, unchanged_count, resolved_format)
 
 
+def filter_by_min_risk(result: LockfileComparison, minimum_risk: str) -> LockfileComparison:
+    """Return a comparison containing only changes at or above the requested risk."""
+    threshold = RISK_ORDER[minimum_risk]
+
+    def keep(change: DependencyChange) -> bool:
+        return RISK_ORDER.get(change.risk, 0) >= threshold
+
+    return LockfileComparison(
+        added=[item for item in result.added if keep(item)],
+        removed=[item for item in result.removed if keep(item)],
+        changed=[item for item in result.changed if keep(item)],
+        unchanged_count=result.unchanged_count,
+        lockfile_format=result.lockfile_format,
+    )
+
+
 def format_text_report(result: LockfileComparison) -> str:
     lines = [
         f"Lockfile format: {result.lockfile_format}",
@@ -81,13 +100,19 @@ def main(argv: list[str] | None = None) -> int:
         default="auto",
         help="Lockfile format to parse",
     )
+    parser.add_argument(
+        "--min-risk",
+        choices=["low", "medium", "high"],
+        default="low",
+        help="Only include dependency changes at or above this risk level.",
+    )
     parser.add_argument("--json", action="store_true", help="Emit machine-readable JSON")
     parser.add_argument("--output", help="Write output to a file instead of stdout")
     args = parser.parse_args(argv)
 
     old_text = Path(args.old).read_text(encoding="utf-8")
     new_text = Path(args.new).read_text(encoding="utf-8")
-    result = compare_lockfiles(old_text, new_text, args.format)
+    result = filter_by_min_risk(compare_lockfiles(old_text, new_text, args.format), args.min_risk)
     output = json.dumps(_comparison_to_dict(result), indent=2, sort_keys=True) + "\n" if args.json else format_text_report(result)
 
     if args.output:
@@ -212,4 +237,12 @@ def _semver_parts(version: str) -> tuple[int, ...] | None:
     return tuple(int(part) for part in match.groups(default="0"))
 
 
-__all__ = ["__version__", "DependencyChange", "LockfileComparison", "compare_lockfiles", "format_text_report", "main"]
+__all__ = [
+    "__version__",
+    "DependencyChange",
+    "LockfileComparison",
+    "compare_lockfiles",
+    "filter_by_min_risk",
+    "format_text_report",
+    "main",
+]

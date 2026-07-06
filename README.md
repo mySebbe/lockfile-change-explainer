@@ -8,16 +8,17 @@ Supported v0.1 inputs:
 - requirements-style files such as `requirements.txt`
 - simple pylock/TOML files with package entries containing `name` and `version`
 
-## 0.1.1 Highlights
+## 0.1.2 Highlights
 
-- Dependency downgrades are now called out as high-risk changes.
-- Downgrade hints now mention compatibility, security fixes, and resolver constraints.
+- CLI output can now be filtered with `--min-risk low|medium|high`.
+- Maintainers can focus large dependency diffs on high-risk changes first.
 
 ## Usage
 
 ```bash
 python -m lockfile_change_explainer --old old-package-lock.json --new package-lock.json --format package-lock
 python -m lockfile_change_explainer --old old.txt --new new.txt --format requirements --json
+python -m lockfile_change_explainer --old old.txt --new new.txt --format requirements --min-risk high
 ```
 
 Risk hints are heuristic. Major version changes are marked high risk, minor changes medium risk, patch changes low risk, and added or removed dependencies medium risk.
