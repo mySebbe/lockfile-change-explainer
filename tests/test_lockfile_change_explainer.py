@@ -6,7 +6,12 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from lockfile_change_explainer import compare_lockfiles, format_text_report, main
+from lockfile_change_explainer import (
+    compare_lockfiles,
+    filter_by_min_risk,
+    format_text_report,
+    main,
+)
 
 
 class LockfileChangeExplainerTests(unittest.TestCase):
@@ -67,6 +72,17 @@ class LockfileChangeExplainerTests(unittest.TestCase):
         self.assertEqual("high", result.changed[0].risk)
         self.assertIn("downgraded", result.changed[0].hint)
 
+    def test_filter_by_min_risk_keeps_only_high_risk_changes(self):
+        result = compare_lockfiles(
+            "major==1.0.0\nminor==1.0.0\npatch==1.0.0\n",
+            "major==2.0.0\nminor==1.1.0\npatch==1.0.1\n",
+            lockfile_format="requirements",
+        )
+
+        filtered = filter_by_min_risk(result, "high")
+
+        self.assertEqual(["major"], [item.name for item in filtered.changed])
+
     def test_cli_emits_json_summary(self):
         with tempfile.TemporaryDirectory() as tmp:
             old_path = Path(tmp) / "old.txt"
@@ -84,6 +100,8 @@ class LockfileChangeExplainerTests(unittest.TestCase):
                     "--format",
                     "requirements",
                     "--json",
+                    "--min-risk",
+                    "high",
                     "--output",
                     str(out_path),
                 ]
